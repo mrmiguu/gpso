@@ -1,164 +1,35 @@
 * {
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    background: white;
     width: 100%;
     height: 100%;
-    background: no-repeat center/contain;
-    display: grid;
-    justify-self: center;
-    align-items: center;
-}
-head {
-    display: none;
 }
 body {
-    margin: 0;
-    background: #ffe97f;
+    display: grid;
+}
+body * {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    text-align: center;
+    justify-self: center;
+    align-self: center;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 .screen {
-    opacity: 0;
+    display: none;
+    /* position: absolute; */
 }
-
-/* CSS content starts here */
-/* CSS content starts here */
-/* CSS content starts here */
-
-.splash-anim { animation: splash-keyframes 2.5s; }
-@keyframes splash-keyframes {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-#logo {
-    width: 50%;
-    height: 30%;
-    background-image: url(logo.png);
-}
-
-/* CSS content ends here */
-/* CSS content ends here */
-/* CSS content ends here */
-
-#fore, #game, #die, #ui {
-    position: fixed;
-}
-
-/* main layers */
-
-#fore {
-    background: url(bg.png) top/cover;
-
-    display: grid;
-    grid-template-areas:
-        "underlay";
-}
-#game {
-    display: grid;
-    grid-template-areas:
-        "city";
-}
-#ui {
-    display: grid;
-    grid-template-rows: 1vh auto;
-    grid-template-areas:
-        "exp"
-        "gps"
-        "bar";
-}
-
-/* layer elements */
-
-#underlay {
-    grid-area: underlay;
-    align-self: end;
-    
-    height: 75vh;
-    background: url(underlay.png) repeat-x center bottom/75vh;
-}
-#city {
-    grid-area: city;
-    align-self: end;
-    
-    height: 75vh;
-    background: url(cities/corona.png) no-repeat center bottom/75vh;
-}
-
-#exp {
-    grid-area: exp;
-    align-self: top;
-    width: 75%;
-    height: 100%;
-    background: #ffff00;
-}
-
-#gps {
-    grid-area: gps;
-    align-self: top;
-
-    height: 100%;
-    background: url(gps.png) no-repeat center/65vh;
-}
-
-#bar {
-    grid-area: bar;
-    align-self: end;
-
-    height: 10vh;
-    z-index: 10px;
-    background: #ffe97f;
-    box-shadow: 0 0 0.67vh;
-
-    display: grid;
-    justify-items: center;
-    grid-template-areas:
-        "bag gpsos shop";
-}
-#ico-bag {
-    grid-area: bag;
-
-    width: 100%;
-    height: 100%;
-    background: url(icos/bag.png) no-repeat center/contain;
-}
-#ico-gpsos {
-    grid-area: gpsos;
-
-    width: 100%;
-    height: 100%;
-    background: url(icos/gpsos.png) no-repeat center/contain;
-}
-#ico-shop {
-    grid-area: shop;
-
-    width: 100%;
-    height: 100%;
-    background: url(icos/shop.png) no-repeat center/contain;
-}
-
-/* #gps-wrapper {
-    position: absolute;
-    width: 50vmin;
-    height: calc(50vmin);
-    background: url(gps.png) no-repeat center/contain;
-}
-
-#gps {
-    position: absolute;
-    top: calc(47/508*50vmin);
-    left: calc(61/508*50vmin);
-    width: calc(385/508*50vmin);
-    height: calc(216/508*50vmin);
-    overflow: hidden;
-}
-
-#map {
-    position: absolute;
-    top: -200px;
-    left: -500px;
-} */
-
-.noselect {
-    -webkit-touch-callout: none;
-      -webkit-user-select: none;
-       -khtml-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none;
+input, a { 
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: calc(24*.1vh);
+    color: white;
+    text-shadow: 0 -.3vh .3vh rgba(0, 0, 0, 0.75);
 }

@@ -1,0 +1,168 @@
+.game {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url(etc/bg.png);
+    background-size: cover;
+    background-position: top;
+    overflow: hidden;
+
+    justify-content: center;
+    grid-template-columns: 100%;
+    grid-template-rows: 1% 39% 50% 10%;
+    grid-template-areas:
+        "exp"
+        "gps"
+        "city"
+        "bar";
+}
+.exp {
+    grid-area: exp;
+
+    width: 100%;
+    height: 100%;
+    background-color: #ffff00;
+    align-self: start;
+}
+
+.gps {
+    grid-area: gps;
+
+    position: relative;
+    width: calc(762*.1vh);
+    height: calc(480*.1vh);
+    background-image: url(etc/gps.png);
+}
+.gps a {
+    display: block;
+    overflow: hidden;
+    position: relative;
+    left: calc(188/762*100%);
+    top: calc(127/480*100%);
+    width: calc(388/762*100%);
+    height: calc(218/480*100%);
+}
+.gps .map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(1454*.1vh);
+    height: calc(1210*.1vh);
+    background-size: 100% 100%;
+}
+
+.city {
+    grid-area: city;
+
+    width: calc(750*.1vh);
+    height: calc(550*.1vh);
+    background-image: url(cities/palosverdes.png);
+    align-self: end;
+
+    display: grid;
+    justify-content: center;
+}
+
+.die, .die * {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-size: 100% 100%;
+} .die {
+    top: 53%;
+} .die .dieshadow {
+    background-image: url(dice/shadow.png);
+    width: calc(160*.1vh);
+    height: calc(160*.1vh);
+} .die .diebody {
+    background-image: url(dice/white-3.png);
+    width: calc(120*.1vh);
+    height: calc(120*.1vh);
+    animation-duration: .25s;
+} @keyframes diejump {
+    0% {
+        animation-timing-function: ease-out;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(0deg);
+    } 50% {
+        animation-timing-function: ease-in;
+        top: calc(-300*.1vh);
+        transform: translate(-50%, -50%) rotate(180deg);
+    } 100% {
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+} .die .diehat {
+    background-image: url(hats/tophat.png);
+    width: calc(144*.1vh);
+    height: calc(390*.1vh);
+    pointer-events: none;
+}
+
+/* .die {
+    position: absolute;
+    width: 10vh;
+    height: 10vh;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+
+    background-image: url(dice/white.png);
+    background-size: calc(6*100%) 100%;
+    background-position: calc(0*20%);
+
+    transform-origin: left top;
+    animation-duration: .125s;
+} @keyframes diejump {
+    from {
+        animation-timing-function: ease-out;
+        top: 55%;
+        transform: rotate(0deg) translate(-50%,-50%);
+    } to {
+        top: 30%;
+        transform: rotate(180deg) translate(-50%,-50%);
+    }
+} @keyframes diefall {
+    from {
+        animation-timing-function: ease-in;
+        top: 30%;
+        transform: rotate(180deg) translate(-50%,-50%);
+    } to {
+        top: 55%;
+        transform: rotate(360deg) translate(-50%,-50%);
+    }
+} */
+
+.bar {
+    grid-area: bar;
+    align-self: end;
+
+    width: 100%;
+    height: 100%;
+    background-color: #ffe97f;
+    box-shadow: 0 0 1vh black;
+
+    display: grid;
+    justify-content: space-evenly;
+    grid-template-areas:
+        "bagico gpsosico shopico"
+}
+.bagico {
+    grid-area: bagico;
+    width: calc(93*.1vh);
+    height: calc(93*.1vh);
+    background-image: url(icos/bag.png);
+}
+.gpsosico {
+    grid-area: gpsosico;
+    width: calc(93*.1vh);
+    height: calc(93*.1vh);
+    background-image: url(icos/gpsos.png);
+}
+.shopico {
+    grid-area: shopico;
+    width: calc(93*.1vh);
+    height: calc(93*.1vh);
+    background-image: url(icos/shop.png);
+}

@@ -1,0 +1,24 @@
+.map {
+    position: relative;
+    background-image: url(etc/map.png);
+    width: calc(1454*.1vh);
+    height: calc(1210*.1vh);
+}
+
+.car {
+    position: absolute;
+    width: calc(78/1454*100%);
+    height: calc(84/1210*100%);
+    transform: translate(-50%, -50%);
+    transition: left 1s, top 1s;
+    justify-self: auto;
+    align-self: auto;
+}
+
+.rcar { background-image: url(cars/r.png); }
+.ocar { background-image: url(cars/o.png); }
+.ycar { background-image: url(cars/y.png); }
+.gcar { background-image: url(cars/g.png); }
+.bcar { background-image: url(cars/b.png); }
+.icar { background-image: url(cars/i.png); }
+.vcar { background-image: url(cars/v.png); }

@@ -4,39 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="
         width=device-width,
-        initial-scale=1.0,
-        minimum-scale=1.0,
-        maximum-scale=1.0,
+        initial-scale=1.0
     " />
     <title>Go Play Smile</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#ffe97f">
+    <meta name="theme-color" content="#ffffff">
+
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style-splash.css">
+    <link rel="stylesheet" href="style-login.css">
+    <link rel="stylesheet" href="style-game.css">
+    <link rel="stylesheet" href="style-map.css">
+    <link rel="stylesheet" href="style-gpsos.css">
+
     <script defer src="script.js.gz"></script>
 </head>
 
 <body>
-    <div id="splash" class="screen">
-        <div id="logo"></div>
+    <a class="screen splash" id="#" href="#login">
+        <div class="logo center"></div>
+    </a>
+
+    <div class="screen login" id="login">
+        <div class="loginbg"></div>
+        <input class="logininput" value="Enter a Username">
+        <a href="#game" class="loginbtn"><p>Login</p></a>
     </div>
 
-    <!-- <div id="fore">
-        <div id="underlay"></div>
-    </div>
-
-    <div id="game">
-        <div id="city"></div>
-    </div>
-
-    <div id="ui">
-        <div id="exp"></div>
-        
-        <div id="gps"></div>
-        
-        <div id="bar">
-            <div id="ico-bag"></div>
-            <div id="ico-gpsos"></div>
-            <div id="ico-shop"></div>
+    <div class="screen game" id="game">
+        <div class="exp"></div>
+        <div class="gps">
+            <a href="#map">
+                <div class="map">
+                    <div class="car rcar"></div>
+                    <div class="car ocar"></div>
+                    <div class="car ycar"></div>
+                    <div class="car gcar"></div>
+                    <div class="car bcar"></div>
+                    <div class="car icar"></div>
+                    <div class="car vcar"></div>
+                </div>
+            </a>
         </div>
-    </div> -->
+        <div class="city">
+            <div class="die">
+                <div class="dieshadow"></div>
+                <div class="diebody">
+                    <div class="diehat"></div>
+                </div>
+            </div>
+        </div>
+        <div class="bar">
+            <a href="#game" class="bagico"></a>
+            <a href="#gpsos" class="gpsosico"></a>
+            <a href="#game" class="shopico"></a>
+        </div>
+    </div>
+
+    <div class="screen map" id="map">
+        <div class="car rcar"></div>
+        <div class="car ocar"></div>
+        <div class="car ycar"></div>
+        <div class="car gcar"></div>
+        <div class="car bcar"></div>
+        <div class="car icar"></div>
+        <div class="car vcar"></div>
+    </div>
+
+    <div class="screen gpsos" id="gpsos">
+        <div class="gpsoswrap">
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3AGKVQVLS9WF2"><img src="gpsos/gpsos_10.png">$2⁰⁰</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QAZLX4G4DRYXY"><img src="gpsos/gpsos_20.png">$4⁰⁰</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T3MQB3N6G3ZPL"><img src="gpsos/gpsos_50.png">$9⁰⁰</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8EN6JGPG65ELU"><img src="gpsos/gpsos_100.png">$15⁹⁹</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KDXU5V9TUXUMU"><img src="gpsos/gpsos_200.png">$25⁹⁵</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V79FQ6H9M2TW2"><img src="gpsos/gpsos_500.png">$49⁹⁹</a>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VG8SE9DGAGAFC"><img src="gpsos/gpsos_1000.png">$69⁹⁵</a>
+        </div>
+        <a href="#game" class="tab"></a>
+    </div>
 </body>
 
 </html>
