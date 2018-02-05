@@ -3,17 +3,19 @@ package zone
 import (
 	"math"
 	"sort"
+
+	"github.com/mrmiguu/gpso/node"
 )
 
 // Find finds the shortest path from the source to the destination.
-func Find(src, dst Node) ([]Node, error) {
+func Find(src, dst node.T) ([]node.T, error) {
 	return find(src, dst, hmax)
 }
 
-func find(src, dst Node, hmax float64) ([]Node, error) {
-	closed := []Node{}
-	open := []Node{src}
-	from := map[string]Node{}
+func find(src, dst node.T, hmax float64) ([]node.T, error) {
+	closed := []node.T{}
+	open := []node.T{src}
+	from := map[string]node.T{}
 	g := map[string]float64{src.Name: 0}
 
 	h, err := heur(src, dst, hmax)
@@ -66,10 +68,10 @@ func find(src, dst Node, hmax float64) ([]Node, error) {
 		}
 	}
 
-	return []Node{src}, nil
+	return []node.T{src}, nil
 }
 
-func heur(src, dst Node, max float64) (float64, error) {
+func heur(src, dst node.T, max float64) (float64, error) {
 	Nsrc, err := Aton(src.Name)
 	if err != nil {
 		return 0, err
@@ -89,14 +91,14 @@ func dist(a, b [2]int) float64 {
 	return math.Sqrt(float64(x*x + y*y))
 }
 
-func redraw(from map[string]Node, cur Node) []Node {
-	path := []Node{cur}
+func redraw(from map[string]node.T, cur node.T) []node.T {
+	path := []node.T{cur}
 	for {
 		if _, found := from[cur.Name]; !found {
 			break
 		}
 		cur = from[cur.Name]
-		path = append([]Node{cur}, path...)
+		path = append([]node.T{cur}, path...)
 	}
 	return path
 }

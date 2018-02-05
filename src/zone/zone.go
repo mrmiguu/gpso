@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/mrmiguu/gpso/node"
 	"github.com/mrmiguu/gpso/src/ex"
 	"github.com/mrmiguu/sock"
 )
@@ -17,91 +18,92 @@ import (
 var (
 	hmax float64
 
-	println = fmt.Println
-	sprint  = fmt.Sprint
-	newerr  = errors.New
-	itoa    = strconv.Itoa
-	must    = ex.Must
-	abs     = ex.Abs
+	println    = fmt.Println
+	sprint     = fmt.Sprint
+	newerr     = errors.New
+	itoa       = strconv.Itoa
+	must       = ex.Must
+	abs        = ex.Abs
+	zipNodePts = node.ZipNodePts
 )
 
 var (
-	SantaClarita    = Node{Name: "santaclarita", Hwys: []int{5, 210}}
-	SanFernando     = Node{Name: "sanfernando", Hwys: []int{5, 405}}
-	LakeviewTerrace = Node{Name: "lakeviewterrace", Hwys: []int{210}}
-	Sunland         = Node{Name: "sunland", Hwys: []int{210}}
-	PanoramaCity    = Node{Name: "panoramacity", Hwys: []int{5, 170}}
-	LaCanada        = Node{Name: "lacanada", Hwys: []int{2, 210}}
-	Pasadena        = Node{Name: "pasadena", Hwys: []int{110}}
-	VanNuys         = Node{Name: "vannuys", Hwys: []int{101, 405}}
-	Burbank         = Node{Name: "burbank", Hwys: []int{5, 101}}
-	StudioCity      = Node{Name: "studiocity", Hwys: []int{101, 170}}
-	Glendale        = Node{Name: "glendale", Hwys: []int{2, 101}}
-	Azusa           = Node{Name: "azusa", Hwys: []int{210, 605}}
-	SanDimas        = Node{Name: "sandimas", Hwys: []int{57, 210}}
-	Claremont       = Node{Name: "claremont", Hwys: []int{210}}
-	HighlandPark    = Node{Name: "highlandpark", Hwys: []int{110}}
-	LosAngeles      = Node{Name: "losangeles", Hwys: []int{5, 10, 110}}
-	BeverlyHills    = Node{Name: "beverlyhills", Hwys: []int{2, 170}}
-	Rosemead        = Node{Name: "rosemead", Hwys: []int{10}}
-	WestCovina      = Node{Name: "westcovina", Hwys: []int{10}}
-	Pomona          = Node{Name: "pomona", Hwys: []int{10}}
-	ElMonte         = Node{Name: "elmonte", Hwys: []int{10, 605}}
-	MontereyPark    = Node{Name: "montereypark", Hwys: []int{10, 710}}
-	CalPoly         = Node{Name: "calpoly", Hwys: []int{57}}
-	USC             = Node{Name: "usc", Hwys: []int{10, 60, 110}}
-	Commerce        = Node{Name: "commerce", Hwys: []int{60, 710}}
-	SouthElMonte    = Node{Name: "southelmonte", Hwys: []int{60, 605}}
-	CulverCity      = Node{Name: "culvercity", Hwys: []int{10, 405}}
-	ChinoHills      = Node{Name: "chinohills", Hwys: []int{60}}
-	SantaMonica     = Node{Name: "santamonica", Hwys: []int{10}}
-	DiamondBar      = Node{Name: "diamondbar", Hwys: []int{57}}
-	CityOfIndustry  = Node{Name: "cityofindustry", Hwys: []int{60}}
-	SantaFeSprings  = Node{Name: "santafesprings", Hwys: []int{5, 605}}
-	LAX             = Node{Name: "lax", Hwys: []int{105, 405}}
-	Watts           = Node{Name: "watts", Hwys: []int{105, 110}}
-	Corona          = Node{Name: "corona", Hwys: []int{91}}
-	Brea            = Node{Name: "brea", Hwys: []int{57}}
-	Lynwood         = Node{Name: "lynwood", Hwys: []int{105, 710}}
-	Compton         = Node{Name: "compton", Hwys: []int{91, 710}}
-	Bellflower      = Node{Name: "bellflower", Hwys: []int{91, 605}}
-	Hawthorne       = Node{Name: "hawthorne", Hwys: []int{91, 405}}
-	Gardena         = Node{Name: "gardena", Hwys: []int{91, 110}}
-	DominguezHills  = Node{Name: "dominguezhills", Hwys: []int{110}}
-	NorthLongBeach  = Node{Name: "northlongbeach", Hwys: []int{710}}
-	Torrance        = Node{Name: "torrance", Hwys: []int{405}}
-	BuenaPark       = Node{Name: "buenapark", Hwys: []int{5, 91}}
-	Carson          = Node{Name: "carson", Hwys: []int{110, 405}}
-	Fullerton       = Node{Name: "fullerton", Hwys: []int{57, 91}}
-	YorbaLinda      = Node{Name: "yorbalinda", Hwys: []int{55, 91}}
-	Anaheim         = Node{Name: "anaheim", Hwys: []int{5}}
-	Cypress         = Node{Name: "cypress", Hwys: []int{605}}
-	Westminster     = Node{Name: "westminster", Hwys: []int{22, 405}}
-	PalosVerdes     = Node{Name: "palosverdes", Hwys: []int{}}
-	GardenGrove     = Node{Name: "gardengrove", Hwys: []int{5, 22, 57}}
-	Orange          = Node{Name: "orange", Hwys: []int{22, 55}}
-	LongBeach       = Node{Name: "longbeach", Hwys: []int{710}}
-	SanPedro        = Node{Name: "sanpedro", Hwys: []int{110}}
-	HuntingtonBeach = Node{Name: "huntingtonbeach", Hwys: []int{605}}
-	SantaAna        = Node{Name: "santaana", Hwys: []int{5, 55, 405}}
-	FountainValley  = Node{Name: "fountainvalley", Hwys: []int{405}}
+	SantaClarita    = node.T{Name: "santaclarita", Hwys: []int{5, 210}}
+	SanFernando     = node.T{Name: "sanfernando", Hwys: []int{5, 405}}
+	LakeviewTerrace = node.T{Name: "lakeviewterrace", Hwys: []int{210}}
+	Sunland         = node.T{Name: "sunland", Hwys: []int{210}}
+	PanoramaCity    = node.T{Name: "panoramacity", Hwys: []int{5, 170}}
+	LaCanada        = node.T{Name: "lacanada", Hwys: []int{2, 210}}
+	Pasadena        = node.T{Name: "pasadena", Hwys: []int{110}}
+	VanNuys         = node.T{Name: "vannuys", Hwys: []int{101, 405}}
+	Burbank         = node.T{Name: "burbank", Hwys: []int{5, 101}}
+	StudioCity      = node.T{Name: "studiocity", Hwys: []int{101, 170}}
+	Glendale        = node.T{Name: "glendale", Hwys: []int{2, 101}}
+	Azusa           = node.T{Name: "azusa", Hwys: []int{210, 605}}
+	SanDimas        = node.T{Name: "sandimas", Hwys: []int{57, 210}}
+	Claremont       = node.T{Name: "claremont", Hwys: []int{210}}
+	HighlandPark    = node.T{Name: "highlandpark", Hwys: []int{110}}
+	LosAngeles      = node.T{Name: "losangeles", Hwys: []int{5, 10, 110}}
+	BeverlyHills    = node.T{Name: "beverlyhills", Hwys: []int{2, 170}}
+	Rosemead        = node.T{Name: "rosemead", Hwys: []int{10}}
+	WestCovina      = node.T{Name: "westcovina", Hwys: []int{10}}
+	Pomona          = node.T{Name: "pomona", Hwys: []int{10}}
+	ElMonte         = node.T{Name: "elmonte", Hwys: []int{10, 605}}
+	MontereyPark    = node.T{Name: "montereypark", Hwys: []int{10, 710}}
+	CalPoly         = node.T{Name: "calpoly", Hwys: []int{57}}
+	USC             = node.T{Name: "usc", Hwys: []int{10, 60, 110}}
+	Commerce        = node.T{Name: "commerce", Hwys: []int{60, 710}}
+	SouthElMonte    = node.T{Name: "southelmonte", Hwys: []int{60, 605}}
+	CulverCity      = node.T{Name: "culvercity", Hwys: []int{10, 405}}
+	ChinoHills      = node.T{Name: "chinohills", Hwys: []int{60}}
+	SantaMonica     = node.T{Name: "santamonica", Hwys: []int{10}}
+	DiamondBar      = node.T{Name: "diamondbar", Hwys: []int{57}}
+	CityOfIndustry  = node.T{Name: "cityofindustry", Hwys: []int{60}}
+	SantaFeSprings  = node.T{Name: "santafesprings", Hwys: []int{5, 605}}
+	LAX             = node.T{Name: "lax", Hwys: []int{105, 405}}
+	Watts           = node.T{Name: "watts", Hwys: []int{105, 110}}
+	Corona          = node.T{Name: "corona", Hwys: []int{91}}
+	Brea            = node.T{Name: "brea", Hwys: []int{57}}
+	Lynwood         = node.T{Name: "lynwood", Hwys: []int{105, 710}}
+	Compton         = node.T{Name: "compton", Hwys: []int{91, 710}}
+	Bellflower      = node.T{Name: "bellflower", Hwys: []int{91, 605}}
+	Hawthorne       = node.T{Name: "hawthorne", Hwys: []int{91, 405}}
+	Gardena         = node.T{Name: "gardena", Hwys: []int{91, 110}}
+	DominguezHills  = node.T{Name: "dominguezhills", Hwys: []int{110}}
+	NorthLongBeach  = node.T{Name: "northlongbeach", Hwys: []int{710}}
+	Torrance        = node.T{Name: "torrance", Hwys: []int{405}}
+	BuenaPark       = node.T{Name: "buenapark", Hwys: []int{5, 91}}
+	Carson          = node.T{Name: "carson", Hwys: []int{110, 405}}
+	Fullerton       = node.T{Name: "fullerton", Hwys: []int{57, 91}}
+	YorbaLinda      = node.T{Name: "yorbalinda", Hwys: []int{55, 91}}
+	Anaheim         = node.T{Name: "anaheim", Hwys: []int{5}}
+	Cypress         = node.T{Name: "cypress", Hwys: []int{605}}
+	Westminster     = node.T{Name: "westminster", Hwys: []int{22, 405}}
+	PalosVerdes     = node.T{Name: "palosverdes", Hwys: []int{}}
+	GardenGrove     = node.T{Name: "gardengrove", Hwys: []int{5, 22, 57}}
+	Orange          = node.T{Name: "orange", Hwys: []int{22, 55}}
+	LongBeach       = node.T{Name: "longbeach", Hwys: []int{710}}
+	SanPedro        = node.T{Name: "sanpedro", Hwys: []int{110}}
+	HuntingtonBeach = node.T{Name: "huntingtonbeach", Hwys: []int{605}}
+	SantaAna        = node.T{Name: "santaana", Hwys: []int{5, 55, 405}}
+	FountainValley  = node.T{Name: "fountainvalley", Hwys: []int{405}}
 )
 
-var Nodes []Node
+var Nodes []node.T
 
-var name2node = func() map[string]Node {
-	m := make(map[string]Node, len(Nodes))
+var name2node = func() map[string]node.T {
+	m := make(map[string]node.T, len(Nodes))
 	for _, n := range Nodes {
 		m[n.Name] = n
 	}
 	return m
 }()
 
-func Aton(s string) (Node, error) {
+func Aton(s string) (node.T, error) {
 	if n, found := name2node[s]; found {
 		return n, nil
 	}
-	return Node{}, newerr("'" + s + "' not found in zone")
+	return node.T{}, newerr("'" + s + "' not found in zone")
 }
 
 var srcDst = [][2]string{
@@ -119,7 +121,7 @@ var srcDst = [][2]string{
 	{ElMonte.Name, SanPedro.Name},
 }
 
-func SrcDst() (src, dst Node) {
+func SrcDst() (src, dst node.T) {
 	sd := srcDst[rand.Intn(len(srcDst))]
 	si := rand.Intn(len(sd))
 	src, _ = Aton(sd[si])
@@ -188,7 +190,7 @@ func init() {
 	SantaAna.Near = []string{Orange.Name, GardenGrove.Name, FountainValley.Name}
 	FountainValley.Near = []string{Westminster.Name, SantaAna.Name, GardenGrove.Name, HuntingtonBeach.Name, Cypress.Name}
 
-	nodes := []*Node{
+	nodes := []*node.T{
 		&SantaClarita, &SanFernando, &LakeviewTerrace, &Sunland, &PanoramaCity, &LaCanada, &Pasadena, &VanNuys,
 		&Burbank, &StudioCity, &Glendale, &Azusa, &SanDimas, &Claremont, &HighlandPark, &LosAngeles,
 		&BeverlyHills, &Rosemead, &WestCovina, &Pomona, &ElMonte, &MontereyPark, &CalPoly, &USC,
@@ -204,7 +206,7 @@ func init() {
 	hmax = diag
 	must(zipNodePts(nodes, pts))
 
-	Nodes = make([]Node, len(nodes))
+	Nodes = make([]node.T, len(nodes))
 	for i, node := range nodes {
 		Nodes[i] = *node
 	}

@@ -1,15 +1,15 @@
 package main
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"time"
 
 	"github.com/mrmiguu/jsutil"
 
+	"github.com/mrmiguu/gpso/node"
 	"github.com/mrmiguu/gpso/src/ex"
-	"github.com/mrmiguu/gpso/src/plr"
 
-	"github.com/mrmiguu/gpso/src/zone"
 	"github.com/mrmiguu/page"
 	"github.com/mrmiguu/page/css"
 	"github.com/mrmiguu/sock"
@@ -83,31 +83,35 @@ func main() {
 			go func() {
 				user := loginInput.Value()
 
-				userPass := [2][]byte{[]byte(user), []byte(user)}
+				passhash := sha256.Sum256([]byte(user))
+				userPass := [2]string{
+					user,
+					string(passhash[:]),
+				}
 				authb, err := vtob(userPass)
 				must(err)
 				println("[UserPass] sending")
 				authc <- authb
 				println("[UserPass] sent")
 
-				statsh := head(user, "stats")
-				statsc := sock.Rbytes()
-				defer sock.Close(statsh)
+				// statsh := head(user, "stats")
+				// statsc := sock.Rbytes()
+				// defer sock.Close(statsh)
 				nodesh := head(user, "nodes")
 				nodesc := sock.Rbytes()
 				defer sock.Close(nodesh)
 
-				go func() {
-					for statsb := range statsc {
-						stats := plr.Stats{}
-						btov(statsb, &stats)
-						expBar.Width(css.Pct(stats.Exp))
-					}
-				}()
+				// go func() {
+				// 	for statsb := range statsc {
+				// 		stats := plr.Stats{}
+				// 		btov(statsb, &stats)
+				// 		expBar.Width(css.Pct(stats.Exp))
+				// 	}
+				// }()
 
 				println("[Nodes] receiving")
 				nodesb := <-nodesc
-				nodes := []zone.Node{}
+				nodes := []node.T{}
 				must(btov(nodesb, &nodes))
 				println("[Nodes] " + string(nodesb))
 
@@ -116,7 +120,7 @@ func main() {
 					car := carElems[cari]
 					x, y := float64(nodes[nodei].Pt[0])/1454, float64(nodes[nodei].Pt[1])/1210
 
-					go car.Move(css.Pctf(x*100), css.Pctf(y*100))
+					go car.Move(css.Pct(x*100), css.Pct(y*100))
 					time.Sleep(1 * time.Second)
 
 					// cycle through the pts

@@ -43,6 +43,9 @@ func (a *Accounts) Get(user string, pass []byte) (*Stats, error) {
 		if err != nil { // file not found; set new account password
 			println("[NewAccount] " + user)
 			acct = &Account{Passhash: string(pass)}
+			if err := acct.unsafeSave(user); err != nil {
+				return nil, err
+			}
 		} else if err := json.NewDecoder(f).Decode(&acct); err != nil { // file found, but undecodable
 			return nil, err
 		}
@@ -53,6 +56,7 @@ func (a *Accounts) Get(user string, pass []byte) (*Stats, error) {
 	if acct.Online {
 		return nil, newerr("single user per account only")
 	}
+	acct.Online = true
 	if acct.Passhash != string(pass) {
 		return nil, newerr("bad password")
 	}

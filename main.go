@@ -48,10 +48,10 @@ func main() {
 	go saveAccounts(&accts)
 
 	for authb := range authc {
-		var userPass [2][]byte
+		var userPass [2]string
 		btov(authb, &userPass)
-		user := string(userPass[0])
-		stats, err := accts.Get(user, userPass[1])
+		user := userPass[0]
+		stats, err := accts.Get(user, []byte(userPass[1]))
 		if err != nil {
 			errc <- err
 			continue
