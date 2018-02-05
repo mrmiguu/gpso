@@ -10,8 +10,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mrmiguu/gpso/node"
 	"github.com/mrmiguu/gpso/src/ex"
+	"github.com/mrmiguu/gpso/src/node"
 	"github.com/mrmiguu/sock"
 )
 

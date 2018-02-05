@@ -7,8 +7,8 @@ import (
 
 	"github.com/mrmiguu/jsutil"
 
-	"github.com/mrmiguu/gpso/node"
 	"github.com/mrmiguu/gpso/src/ex"
+	"github.com/mrmiguu/gpso/src/node"
 
 	"github.com/mrmiguu/page"
 	"github.com/mrmiguu/page/css"

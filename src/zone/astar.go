@@ -4,7 +4,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/mrmiguu/gpso/node"
+	"github.com/mrmiguu/gpso/src/node"
 )
 
 // Find finds the shortest path from the source to the destination.
