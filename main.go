@@ -67,23 +67,25 @@ func saveAccounts(accts *plr.Accounts) {
 }
 
 func play(user string, stats *plr.Stats) {
-	statsh := head(user, "stats")
-	statsc := sock.Wbytes(statsh)
-	defer sock.Close(statsh)
+	// statsh := head(user, "stats")
+	// statsc := sock.Wbytes(statsh)
+	// defer sock.Close(statsh)
 	nodesh := head(user, "nodes")
 	nodesc := sock.Wbytes(nodesh)
 	defer sock.Close(nodesh)
 
-	println("[Stats] sending")
-	statsc <- stats.Bytes()
-	println("[Stats] sent")
+	// println("[Stats] sending")
+	// statsc <- stats.Bytes()
+	// println("[Stats] sent")
 
 	nodesb, err := vtob(zone.Nodes)
 	if err != nil {
 		println(err)
 		return
 	}
-	println("[Nodes] sending")
+	println("[" + user + "] sending nodes")
 	nodesc <- nodesb
-	println("[Nodes] sent")
+	println("[" + user + "] nodes sent")
+
+	select {} // keep the player's sockets alive (for now)
 }

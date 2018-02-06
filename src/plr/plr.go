@@ -5,6 +5,8 @@ import (
 	"errors"
 	"os"
 	"sync"
+
+	"github.com/mrmiguu/gpso/src/zone"
 )
 
 var (
@@ -42,7 +44,14 @@ func (a *Accounts) Get(user string, pass []byte) (*Stats, error) {
 		defer f.Close()
 		if err != nil { // file not found; set new account password
 			println("[NewAccount] " + user)
-			acct = &Account{Passhash: string(pass)}
+			city, goal := zone.SrcDst()
+			acct = &Account{
+				Passhash: string(pass),
+				Stats: Stats{
+					City: city.Name,
+					Goal: goal.Name,
+				},
+			}
 			if err := acct.unsafeSave(user); err != nil {
 				return nil, err
 			}
@@ -53,9 +62,12 @@ func (a *Accounts) Get(user string, pass []byte) (*Stats, error) {
 		acct.Online = false
 		a.m[user] = acct
 	}
-	if acct.Online {
-		return nil, newerr("single user per account only")
-	}
+	// TODO: add something that changes Online=true to false
+	//       modify 'sock' to spring this event
+	//
+	// if acct.Online {
+	// 	return nil, newerr("single user per account only")
+	// }
 	acct.Online = true
 	if acct.Passhash != string(pass) {
 		return nil, newerr("bad password")
@@ -65,7 +77,7 @@ func (a *Accounts) Get(user string, pass []byte) (*Stats, error) {
 }
 
 // AddGpsos adds gpsos into the user's account if existant.
-func (a *Accounts) AddGpsos(user string) error {
+func (a *Accounts) AddGpsos(user string, gpsos int) error {
 	a.mux.Lock()
 	defer a.mux.Unlock()
 	if a.m == nil {
@@ -83,7 +95,7 @@ func (a *Accounts) AddGpsos(user string) error {
 		f.Close()
 		a.m[user] = acct
 	}
-	acct.Gpsos++
+	acct.Gpsos += gpsos
 	acct.unsafeSave(user)
 	if !found { // they weren't logged in
 		delete(a.m, user)
@@ -146,6 +158,8 @@ type Stats struct {
 	Level int
 	Gpsos int
 	Color Color
+	City,
+	Goal string
 }
 
 func (s Stats) Bytes() []byte {

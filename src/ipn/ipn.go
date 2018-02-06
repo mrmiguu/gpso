@@ -6,11 +6,22 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"sync"
 
 	"github.com/mrmiguu/gpso/src/ex"
 	"github.com/mrmiguu/gpso/src/plr"
 )
+
+var price2gpsos = map[float64]int{
+	2.00:  10,
+	4.00:  20,
+	9.00:  50,
+	15.99: 100,
+	25.95: 200,
+	49.99: 500,
+	69.95: 1000,
+}
 
 var (
 	// Accounts references player accounts.
@@ -18,8 +29,13 @@ var (
 
 	ipn IPN
 
-	must   = ex.Must
-	sprint = fmt.Sprint
+	println = fmt.Println
+	sprint  = fmt.Sprint
+	itoa    = strconv.Itoa
+	stof    = strconv.ParseFloat
+	ftos    = strconv.FormatFloat
+	must    = ex.Must
+	time    = ex.Time
 )
 
 // Handler handles instant payment notifications, processing account changes.
@@ -44,13 +60,12 @@ func (ipn *IPN) init() {
 func (ipn *IPN) Handler(w http.ResponseWriter, r *http.Request) {
 	ipn.once.Do(ipn.init)
 
-	println("ipn: /gpso_ipn [!]")
+	println("ipn: /gpso_ipn")
 	if r.Method != http.MethodPost {
 		http.Error(w, fmt.Sprintf("No route for %v", r.Method), http.StatusNotFound)
 		return
 	}
 
-	println("ipn: Write Status 200")
 	w.WriteHeader(http.StatusOK)
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -76,17 +91,73 @@ func (ipn *IPN) Handler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	verifyStatus := string(b)
 
+	println("ipn: " + verifyStatus)
 	if verifyStatus != "VERIFIED" {
-		println("ipn: " + verifyStatus)
 		return
 	}
-	println("ipn: " + verifyStatus)
 
 	vals, err := url.ParseQuery(string(body))
-	for k, v := range vals {
-		println("ipn: " + k + "=" + sprint(v))
-		// for _, user := range v {
-		// 	ipn.Accounts.AddGpsos(user)
-		// }
+	if err != nil {
+		println("ipn: " + err.Error())
+		return
 	}
+
+	// official parsing
+	// official parsing
+	// official parsing
+
+	users := vals["custom"]
+	if len(users) == 0 {
+		println("ipn: empty custom")
+		return
+	}
+	user := users[0]
+
+	grossStrs := vals["mc_gross"]
+	if len(grossStrs) == 0 {
+		println("ipn: empty mc_gross")
+		return
+	}
+	grossStr := grossStrs[0]
+	gross, err := stof(grossStr, 64)
+	if err != nil {
+		println("ipn: could not parse gross from '" + grossStr + "'")
+		return
+	}
+
+	currencies := vals["mc_currency"]
+	if len(currencies) == 0 {
+		println("ipn: empty mc_currency")
+		return
+	}
+	currency := currencies[0]
+
+	dateStrs := vals["payment_date"]
+	if len(dateStrs) == 0 {
+		println("ipn: empty payment_date")
+		return
+	}
+	dateStr := dateStrs[0]
+	date, err := time(dateStr, `15:04:05 Jan 02, 2006 MST`)
+	if err != nil {
+		println("ipn: " + err.Error())
+		return
+	}
+
+	println("ipn: payment of " + ftos(gross, 'f', 2, 64) + " " + currency + " received " + date.String())
+
+	price := gross // TODO: conversion goes here
+
+	gpsos, found := price2gpsos[price]
+	if !found {
+		println("ipn: price of " + ftos(price, 'f', 2, 64) + " " + currency + " not found")
+		return
+	}
+
+	if err := ipn.Accounts.AddGpsos(user, gpsos); err != nil {
+		println("ipn: " + err.Error())
+		return
+	}
+
+	println("ipn: " + user + " bought " + itoa(gpsos) + " gpsos")
 }
