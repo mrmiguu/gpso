@@ -2,29 +2,34 @@ package zone
 
 import (
 	"errors"
-	"fmt"
+
 	"image"
 	"image/color"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"math"
 	"math/rand"
-	"os"
 	"strconv"
 
 	"github.com/mrmiguu/gpso/src/ex"
 	"github.com/mrmiguu/gpso/src/node"
+	"github.com/mrmiguu/jsutil"
 	"github.com/mrmiguu/sock"
 )
 
 var (
-	hmax float64
-
-	println    = fmt.Println
-	sprint     = fmt.Sprint
+	open       = jsutil.Open
 	newerr     = errors.New
 	itoa       = strconv.Itoa
 	must       = ex.Must
 	abs        = ex.Abs
 	zipNodePts = node.ZipNodePts
+
+	Width  int
+	Height int
+
+	hmax float64
 )
 
 var (
@@ -91,13 +96,7 @@ var (
 
 var Nodes []node.T
 
-var name2node = func() map[string]node.T {
-	m := make(map[string]node.T, len(Nodes))
-	for _, n := range Nodes {
-		m[n.Name] = n
-	}
-	return m
-}()
+var name2node = map[string]node.T{}
 
 func Aton(s string) (node.T, error) {
 	if n, found := name2node[s]; found {
@@ -201,36 +200,42 @@ func init() {
 		&HuntingtonBeach, &SantaAna, &FountainValley,
 	}
 
-	pts, diag, err := zoneData(59)
+	pts, size, err := zoneData(59)
 	must(err)
-	hmax = diag
+	Width, Height = size[0], size[1]
+	hmax = math.Sqrt(float64(Width*Width + Height*Height))
 	must(zipNodePts(nodes, pts))
 
 	Nodes = make([]node.T, len(nodes))
 	for i, node := range nodes {
 		Nodes[i] = *node
+		name2node[node.Name] = *node
 	}
 }
 
 // zoneData by Jason Lin © 2014
-func zoneData(n int) (pts [][2]int, diag float64, err error) {
+func zoneData(n int) (pts [][2]int, size [2]int, err error) {
 	const dotW, dotH = 12, 13
 	red := color.RGBA{R: 255, A: 255}
 
-	f, err := os.Open(sock.Root + "/etc/map.png")
+	r, err := open(sock.Root + "/etc/map.png")
 	if err != nil {
 		return
 	}
-	defer f.Close()
-	img, _, err := image.Decode(f)
+	defer r.Close()
+	img, _, err := image.Decode(r)
 	if err != nil {
 		return
 	}
-	size := img.Bounds().Size()
-	diag = math.Sqrt(float64(size.X*size.X + size.Y*size.Y))
+	rect := img.Bounds().Size()
+	if rect.X == 0 || rect.Y == 0 {
+		err = newerr("bad zone size")
+		return
+	}
+	size[0], size[1] = rect.X, rect.Y
 
-	for y := 0; y < size.Y; y++ { // top to bottom
-		for x := 0; x < size.X; x++ { // left to right
+	for y := 0; y < rect.Y; y++ { // top to bottom
+		for x := 0; x < rect.X; x++ { // left to right
 			if img.At(x, y) != red {
 				continue
 			}

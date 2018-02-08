@@ -2,12 +2,11 @@ package node
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 )
 
 var (
-	sprint = fmt.Sprint
+	// sprint = fmt.Sprint
 	newerr = errors.New
 	itoa   = strconv.Itoa
 )
@@ -36,9 +35,9 @@ func (t T) Contained(nodes []T) bool {
 	return err == nil
 }
 
-func (t T) String() string {
-	return t.Name + sprint(t.Pt) + ":\n\tHwys=" + sprint(t.Hwys) + "\n\tNear=" + sprint(t.Near)
-}
+// func (t T) String() string {
+// 	return t.Name + sprint(t.Pt) + ":\n\tHwys=" + sprint(t.Hwys) + "\n\tNear=" + sprint(t.Near)
+// }
 
 func ZipNodePts(nodes []*T, pts [][2]int) error {
 	nL, pL := len(nodes), len(pts)

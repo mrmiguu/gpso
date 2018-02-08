@@ -3,12 +3,15 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/json"
-	"time"
+	"strconv"
+
+	"github.com/mrmiguu/gpso/src/zone"
+
+	"github.com/mrmiguu/gpso/src/plr"
 
 	"github.com/mrmiguu/jsutil"
 
 	"github.com/mrmiguu/gpso/src/ex"
-	"github.com/mrmiguu/gpso/src/node"
 
 	"github.com/mrmiguu/page"
 	"github.com/mrmiguu/page/css"
@@ -16,6 +19,15 @@ import (
 )
 
 var (
+	pct   = css.Pct
+	atoi  = zone.Aton
+	redir = jsutil.Redirect
+	panic = jsutil.Panic
+	itoa  = strconv.Itoa
+	vtob  = json.Marshal
+	btov  = json.Unmarshal
+	head  = ex.Head
+
 	allScreens   = page.Class("screen")
 	splashScreen = page.Class("splash")
 	loginScreen  = page.Class("login")
@@ -34,27 +46,27 @@ var (
 	g1000        = page.Class("g1000")
 	tabElem      = page.Class("tab")
 
-	carElems = []page.Elem{
-		page.Class("rcar"),
-		page.Class("ocar"),
-		page.Class("ycar"),
-		page.Class("gcar"),
-		page.Class("bcar"),
-		page.Class("icar"),
-		page.Class("vcar"),
+	carElems = map[plr.Color]page.Elem{
+		plr.Red:    page.Class("rcar"),
+		plr.Orange: page.Class("ocar"),
+		plr.Yellow: page.Class("ycar"),
+		plr.Green:  page.Class("gcar"),
+		plr.Blue:   page.Class("bcar"),
+		plr.Indigo: page.Class("icar"),
+		plr.Violet: page.Class("vcar"),
 	}
 
-	user string
-
-	vtob  = json.Marshal
-	btov  = json.Unmarshal
-	panic = jsutil.Panic
-	// must  = jsutil.Must
-	head = ex.Head
+	user  string
+	jumpc chan<- bool
+	sidec <-chan int
+	expc  <-chan int
+	lvlc  <-chan int
 )
 
 func main() {
 	sock.Addr = "goplaysmile.com"
+
+	go syncPlrs(sock.Rbytes())
 	authc := sock.Wbytes()
 	errc := sock.Rerror()
 
@@ -100,60 +112,41 @@ func main() {
 				authb, err := vtob(userPass)
 				must(err)
 
-				// statsh := head(user, "stats")
-				// statsc := sock.Rbytes(statsh)
-				// defer sock.Close(statsh)
-				nodesh := head(user, "nodes")
-				nodesc := sock.Rbytes(nodesh)
-				defer sock.Close(nodesh)
+				jumpc = sock.Wbool(head(user, "jump"))
+				sidec = sock.Rint(head(user, "side"))
+				expc = sock.Rint(head(user, "exp"))
+				lvlc = sock.Rint(head(user, "lvl"))
 
 				println("[UserPass] sending")
 				authc <- authb
 				println("[UserPass] sent")
-
-				println("[Nodes] receiving")
-				nodesb := <-nodesc
-				nodes := []node.T{}
-				must(btov(nodesb, &nodes))
-				println("[Nodes] " + string(nodesb))
-
-				nodei, cari := 0, 0
-				for {
-					car := carElems[cari]
-					x, y := float64(nodes[nodei].Pt[0])/1454, float64(nodes[nodei].Pt[1])/1210
-
-					go car.Move(css.Pct(x*100), css.Pct(y*100))
-					time.Sleep(1 * time.Second)
-
-					// cycle through the pts
-					nodei = (nodei + 1) % len(nodes)
-					// cycle through the cars
-					cari = (cari + 1) % len(carElems)
-				}
 			}()
 
 		case <-dieElem.Hit:
 			dieElem.Animation("diejump")
 			go dieElem.Animation("none")
+			jumpc <- true
+		case side := <-sidec:
+			dieElem.BgImg("dice/white-" + itoa(side+1) + ".png")
 
 		case <-gpsosScreen.Link:
 			gpsosScreen.Display(css.Grid)
 			gpsosScreen.Animation("gpsosdown")
 
 		case <-g10.Hit:
-			payPalRedirect("3AGKVQVLS9WF2")
+			payPalRedir("3AGKVQVLS9WF2")
 		case <-g20.Hit:
-			payPalRedirect("QAZLX4G4DRYXY")
+			payPalRedir("QAZLX4G4DRYXY")
 		case <-g50.Hit:
-			payPalRedirect("T3MQB3N6G3ZPL")
+			payPalRedir("T3MQB3N6G3ZPL")
 		case <-g100.Hit:
-			payPalRedirect("8EN6JGPG65ELU")
+			payPalRedir("8EN6JGPG65ELU")
 		case <-g200.Hit:
-			payPalRedirect("KDXU5V9TUXUMU")
+			payPalRedir("KDXU5V9TUXUMU")
 		case <-g500.Hit:
-			payPalRedirect("V79FQ6H9M2TW2")
+			payPalRedir("V79FQ6H9M2TW2")
 		case <-g1000.Hit:
-			payPalRedirect("VG8SE9DGAGAFC")
+			payPalRedir("VG8SE9DGAGAFC")
 
 		case <-mapScreen.Link:
 			allScreens.Display(css.None)
@@ -162,8 +155,35 @@ func main() {
 	}
 }
 
-func payPalRedirect(id string) {
-	jsutil.Redirect("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=" + id + "&custom=" + user)
+func syncPlrs(plrc <-chan []byte) {
+	for plrb := range plrc {
+		var plr plr.Player
+		if err := btov(plrb, &plr); err != nil {
+			println(err)
+			continue
+		}
+
+		if plr.Name == user { // our user interface
+			expBar.Width(pct(plr.Exp))
+		}
+
+		car := carElems[plr.Color]
+		city, err := atoi(plr.City)
+		if err != nil {
+			println(err)
+			continue
+		}
+
+		x, y := city.Pt[0]/zone.Width, city.Pt[1]/zone.Height
+		go car.Move(pct(x*100), pct(y*100))
+	}
+}
+
+func payPalRedir(id string) {
+	if len(user) == 0 {
+		return
+	}
+	redir("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=" + id + "&custom=" + user)
 }
 
 func must(err error) {
