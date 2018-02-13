@@ -67,10 +67,6 @@ func saveAccounts(accts *plr.Accounts) {
 func play(plrc chan<- []byte, user string, plr *plr.Player) {
 	plr.AddExp(25)
 
-	println("[" + user + "] sending")
-	plrc <- plr.Bytes()
-	println("[" + user + "] sent")
-
 	jumph := head(user, "jump")
 	jumpc := sock.Rbool(jumph)
 	defer sock.Close(jumph)
@@ -78,6 +74,10 @@ func play(plrc chan<- []byte, user string, plr *plr.Player) {
 	sideh := head(user, "side")
 	sidec := sock.Wint(sideh)
 	defer sock.Close(sideh)
+
+	println("[" + user + "] sending player")
+	plrc <- plr.Bytes()
+	println("[" + user + "] player sent")
 
 	for range jumpc {
 		sidec <- rand.Intn(6)

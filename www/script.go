@@ -20,6 +20,7 @@ import (
 
 var (
 	pct   = css.Pct
+	pctf  = css.Pctf
 	atoi  = zone.Aton
 	redir = jsutil.Redirect
 	panic = jsutil.Panic
@@ -162,10 +163,7 @@ func syncPlrs(plrc <-chan []byte) {
 			println(err)
 			continue
 		}
-
-		if plr.Name == user { // our user interface
-			expBar.Width(pct(plr.Exp))
-		}
+		println("[" + plr.Name + "] player update!")
 
 		car := carElems[plr.Color]
 		city, err := atoi(plr.City)
@@ -174,8 +172,15 @@ func syncPlrs(plrc <-chan []byte) {
 			continue
 		}
 
-		x, y := city.Pt[0]/zone.Width, city.Pt[1]/zone.Height
-		go car.Move(pct(x*100), pct(y*100))
+		x, y := float64(city.Pt[0])/float64(zone.Width), float64(city.Pt[1])/float64(zone.Height)
+		println(x, y)
+		go car.Move(pctf(x*100), pctf(y*100))
+
+		if plr.Name == user { // our user interface
+			expBar.Width(pct(plr.Exp))
+			// mapScreen.Left(css.Px(-city.Pt[0] / 2))
+			// mapScreen.Top(css.Px(-city.Pt[1] / 2))
+		}
 	}
 }
 

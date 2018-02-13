@@ -52,6 +52,7 @@ func (a *Accounts) Get(user string, pass []byte) (*Player, error) {
 				Player: Player{
 					Name:  user,
 					Level: 1,
+					Color: Color(len(user) % 7),
 				},
 			}
 			a.m[user] = acct
@@ -74,8 +75,8 @@ func (a *Accounts) Get(user string, pass []byte) (*Player, error) {
 	acct.Online = true
 	acct.City = city.Name
 	acct.Goal = goal.Name
-	println("acct.City=" + acct.City)
-	println("acct.Goal=" + acct.Goal)
+	println(user + ".City=" + acct.City)
+	println(user + ".Goal=" + acct.Goal)
 	if acct.Passhash != string(pass) {
 		return nil, newerr("bad password")
 	}
@@ -194,17 +195,17 @@ func (p *Player) Move() {
 		println("plr.Move: " + err.Error())
 		return
 	}
-	if p.City == p.Goal {
-		p.unsafeScramble()
-		return
-	}
 	path, err := zone.Find(city, goal)
+	println(zone.String(path))
 	if err != nil {
 		println("plr.Move: " + err.Error())
 		return
 	}
-	for i, n := range path {
-		println("path-" + itoa(i) + ": " + n.Name)
+	if p.City == p.Goal {
+		p.unsafeScramble()
+		println(p.Name + ".City=" + p.City)
+		println(p.Name + ".Goal=" + p.Goal)
+		return
 	}
 	if len(path) < 2 {
 		println("plr.Move: no more steps in path")

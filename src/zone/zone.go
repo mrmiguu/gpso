@@ -1,7 +1,9 @@
 package zone
 
 import (
+	"encoding/json"
 	"errors"
+	"strings"
 
 	"image"
 	"image/color"
@@ -19,6 +21,8 @@ import (
 )
 
 var (
+	vtob       = json.Marshal
+	join       = strings.Join
 	open       = jsutil.Open
 	newerr     = errors.New
 	itoa       = strconv.Itoa
@@ -97,6 +101,7 @@ var (
 var Nodes []node.T
 
 var name2node = map[string]node.T{}
+var NodeMap []byte
 
 func Aton(s string) (node.T, error) {
 	if n, found := name2node[s]; found {
@@ -211,6 +216,16 @@ func init() {
 		Nodes[i] = *node
 		name2node[node.Name] = *node
 	}
+
+	NodeMap, err = vtob(name2node)
+	must(err)
+
+	// for _, node := range nodes {
+	// 	if node.Pt[0] != 0 || node.Pt[1] != 0 {
+	// 		return
+	// 	}
+	// }
+	// must(newerr("all zone points are empty"))
 }
 
 // zoneData by Jason Lin © 2014
@@ -257,5 +272,11 @@ func zoneData(n int) (pts [][2]int, size [2]int, err error) {
 	if n >= 0 && len(pts) != n {
 		err = newerr(itoa(len(pts)) + " points counted (" + itoa(n) + " required)")
 	}
+	for _, pt := range pts {
+		if pt[0] != 0 || pt[1] != 0 {
+			return
+		}
+	}
+	err = newerr("all zone points are empty")
 	return
 }
