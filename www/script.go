@@ -113,6 +113,10 @@ func main() {
 				authb, err := vtob(userPass)
 				must(err)
 
+				ptsh := head(user, "pts")
+				ptsc := sock.Rbytes(ptsh)
+				defer sock.Close(ptsh)
+
 				jumpc = sock.Wbool(head(user, "jump"))
 				sidec = sock.Rint(head(user, "side"))
 				expc = sock.Rint(head(user, "exp"))
@@ -121,6 +125,13 @@ func main() {
 				println("[UserPass] sending")
 				authc <- authb
 				println("[UserPass] sent")
+
+				println("[ZonePoints] receiving")
+				ptsb := <-ptsc
+				println("[ZonePoints] received")
+
+				must(btov(ptsb, &zone.Pts))
+				must(zone.Init())
 			}()
 
 		case <-dieElem.Hit:
@@ -159,18 +170,13 @@ func main() {
 func syncPlrs(plrc <-chan []byte) {
 	for plrb := range plrc {
 		var plr plr.Player
-		if err := btov(plrb, &plr); err != nil {
-			println(err)
-			continue
-		}
+		must(btov(plrb, &plr))
+
 		println("[" + plr.Name + "] player update!")
 
 		car := carElems[plr.Color]
 		city, err := atoi(plr.City)
-		if err != nil {
-			println(err)
-			continue
-		}
+		must(err)
 
 		x, y := float64(city.Pt[0])/float64(zone.Width), float64(city.Pt[1])/float64(zone.Height)
 		println(x, y)

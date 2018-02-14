@@ -20,18 +20,22 @@ import (
 	"github.com/mrmiguu/sock"
 )
 
+const (
+	MaxPts = 59
+)
+
 var (
-	vtob       = json.Marshal
-	join       = strings.Join
-	open       = jsutil.Open
-	newerr     = errors.New
-	itoa       = strconv.Itoa
-	must       = ex.Must
-	abs        = ex.Abs
-	zipNodePts = node.ZipNodePts
+	vtob   = json.Marshal
+	join   = strings.Join
+	open   = jsutil.Open
+	newerr = errors.New
+	itoa   = strconv.Itoa
+	must   = ex.Must
+	abs    = ex.Abs
 
 	Width  int
 	Height int
+	Pts    [MaxPts][2]int
 
 	hmax float64
 )
@@ -98,16 +102,15 @@ var (
 	FountainValley  = node.T{Name: "fountainvalley", Hwys: []int{405}}
 )
 
-var Nodes []node.T
-
-var name2node = map[string]node.T{}
-var NodeMap []byte
-
-func Aton(s string) (node.T, error) {
-	if n, found := name2node[s]; found {
-		return n, nil
-	}
-	return node.T{}, newerr("'" + s + "' not found in zone")
+var nodes = []*node.T{
+	&SantaClarita, &SanFernando, &LakeviewTerrace, &Sunland, &PanoramaCity, &LaCanada, &Pasadena, &VanNuys,
+	&Burbank, &StudioCity, &Glendale, &Azusa, &SanDimas, &Claremont, &HighlandPark, &LosAngeles,
+	&BeverlyHills, &Rosemead, &WestCovina, &Pomona, &ElMonte, &MontereyPark, &CalPoly, &USC,
+	&Commerce, &SouthElMonte, &CulverCity, &ChinoHills, &SantaMonica, &DiamondBar, &CityOfIndustry, &SantaFeSprings,
+	&LAX, &Watts, &Corona, &Brea, &Lynwood, &Compton, &Bellflower, &Hawthorne,
+	&Gardena, &DominguezHills, &NorthLongBeach, &Torrance, &BuenaPark, &Carson, &Fullerton, &YorbaLinda,
+	&Anaheim, &Cypress, &Westminster, &PalosVerdes, &GardenGrove, &Orange, &LongBeach, &SanPedro,
+	&HuntingtonBeach, &SantaAna, &FountainValley,
 }
 
 var srcDst = [][2]string{
@@ -131,6 +134,17 @@ func SrcDst() (src, dst node.T) {
 	src, _ = Aton(sd[si])
 	dst, _ = Aton(sd[(si+1)%len(sd)])
 	return
+}
+
+var Nodes []node.T
+
+var name2node = make(map[string]node.T)
+
+func Aton(s string) (node.T, error) {
+	if n, found := name2node[s]; found {
+		return n, nil
+	}
+	return node.T{}, newerr("'" + s + "' not found in zone")
 }
 
 func init() {
@@ -193,43 +207,10 @@ func init() {
 	HuntingtonBeach.Near = []string{Westminster.Name, Cypress.Name, GardenGrove.Name, FountainValley.Name}
 	SantaAna.Near = []string{Orange.Name, GardenGrove.Name, FountainValley.Name}
 	FountainValley.Near = []string{Westminster.Name, SantaAna.Name, GardenGrove.Name, HuntingtonBeach.Name, Cypress.Name}
-
-	nodes := []*node.T{
-		&SantaClarita, &SanFernando, &LakeviewTerrace, &Sunland, &PanoramaCity, &LaCanada, &Pasadena, &VanNuys,
-		&Burbank, &StudioCity, &Glendale, &Azusa, &SanDimas, &Claremont, &HighlandPark, &LosAngeles,
-		&BeverlyHills, &Rosemead, &WestCovina, &Pomona, &ElMonte, &MontereyPark, &CalPoly, &USC,
-		&Commerce, &SouthElMonte, &CulverCity, &ChinoHills, &SantaMonica, &DiamondBar, &CityOfIndustry, &SantaFeSprings,
-		&LAX, &Watts, &Corona, &Brea, &Lynwood, &Compton, &Bellflower, &Hawthorne,
-		&Gardena, &DominguezHills, &NorthLongBeach, &Torrance, &BuenaPark, &Carson, &Fullerton, &YorbaLinda,
-		&Anaheim, &Cypress, &Westminster, &PalosVerdes, &GardenGrove, &Orange, &LongBeach, &SanPedro,
-		&HuntingtonBeach, &SantaAna, &FountainValley,
-	}
-
-	pts, size, err := zoneData(59)
-	must(err)
-	Width, Height = size[0], size[1]
-	hmax = math.Sqrt(float64(Width*Width + Height*Height))
-	must(zipNodePts(nodes, pts))
-
-	Nodes = make([]node.T, len(nodes))
-	for i, node := range nodes {
-		Nodes[i] = *node
-		name2node[node.Name] = *node
-	}
-
-	NodeMap, err = vtob(name2node)
-	must(err)
-
-	// for _, node := range nodes {
-	// 	if node.Pt[0] != 0 || node.Pt[1] != 0 {
-	// 		return
-	// 	}
-	// }
-	// must(newerr("all zone points are empty"))
 }
 
 // zoneData by Jason Lin © 2014
-func zoneData(n int) (pts [][2]int, size [2]int, err error) {
+func zoneData() (pts [MaxPts][2]int, w, h int, err error) {
 	const dotW, dotH = 12, 13
 	red := color.RGBA{R: 255, A: 255}
 
@@ -247,8 +228,9 @@ func zoneData(n int) (pts [][2]int, size [2]int, err error) {
 		err = newerr("bad zone size")
 		return
 	}
-	size[0], size[1] = rect.X, rect.Y
+	w, h = rect.X, rect.Y
 
+	i := 0
 	for y := 0; y < rect.Y; y++ { // top to bottom
 		for x := 0; x < rect.X; x++ { // left to right
 			if img.At(x, y) != red {
@@ -261,16 +243,19 @@ func zoneData(n int) (pts [][2]int, size [2]int, err error) {
 			for _, pt := range pts {
 				if abs(pt[0]-dx) <= dotW && abs(pt[1]-dy) <= dotH {
 					new = false
+					break
 				}
 			}
-			if new {
-				pts = append(pts, [2]int{dx, dy})
+			if new && i < MaxPts {
+				pts[i] = [2]int{dx, dy}
+				i++
 			}
 		}
 	}
 
-	if n >= 0 && len(pts) != n {
-		err = newerr(itoa(len(pts)) + " points counted (" + itoa(n) + " required)")
+	if i != MaxPts {
+		err = newerr(itoa(i+1) + " points counted (" + itoa(MaxPts) + " required)")
+		return
 	}
 	for _, pt := range pts {
 		if pt[0] != 0 || pt[1] != 0 {
@@ -279,4 +264,35 @@ func zoneData(n int) (pts [][2]int, size [2]int, err error) {
 	}
 	err = newerr("all zone points are empty")
 	return
+}
+
+func zipNodePts(nodes []*node.T, pts [MaxPts][2]int) error {
+	nL, pL := len(nodes), len(pts)
+	if nL != pL {
+		return newerr(itoa(nL) + "-nodes vs " + itoa(pL) + "-pts")
+	}
+	for i, node := range nodes {
+		node.Pt = pts[i]
+	}
+	return nil
+}
+
+func Init() error {
+	if !sock.IsClient {
+		p, w, h, err := zoneData()
+		if err != nil {
+			return err
+		}
+		Pts, Width, Height = p, w, h
+	}
+	if err := zipNodePts(nodes, Pts); err != nil {
+		return err
+	}
+	hmax = math.Sqrt(float64(Width*Width + Height*Height))
+	Nodes = make([]node.T, len(nodes))
+	for i, node := range nodes {
+		Nodes[i] = *node
+		name2node[node.Name] = *node
+	}
+	return nil
 }

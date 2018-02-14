@@ -11,6 +11,7 @@ import (
 
 	"github.com/mrmiguu/gpso/src/ipn"
 	"github.com/mrmiguu/gpso/src/plr"
+	"github.com/mrmiguu/gpso/src/zone"
 
 	"github.com/mrmiguu/gpso/src/ex"
 
@@ -31,14 +32,16 @@ var (
 )
 
 func main() {
+	sock.Addr = ":80"
+
 	must(compile(sock.Root + "/script.go"))
+	must(zone.Init()) // efficiency for client loading speed
 
 	accts := plr.Accounts{}
 
 	ipn.Accounts = &accts
 	http.HandleFunc("/gpso_ipn", ipn.Handler)
 
-	sock.Addr = ":80"
 	plrc := sock.Wbytes()
 	authc := sock.Rbytes()
 	errc := sock.Werror()
